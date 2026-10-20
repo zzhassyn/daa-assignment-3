@@ -1,0 +1,10 @@
+# Build output
+out/
+bin/
+*.class
+
+# IDE and editors
+.idea/
+*.iml
+.vscode/
+.DS_Store
