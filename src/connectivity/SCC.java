@@ -11,34 +11,69 @@ import java.util.List;
 
 public class SCC {
 
-    public static List<List<Integer>> kosaraju(Graph graph) {
+    public static class Result {
+        public final List<List<Integer>> components;
+        public final long edgeChecks;
+
+        public Result(
+                List<List<Integer>> components,
+                long edgeChecks) {
+            this.components = components;
+            this.edgeChecks = edgeChecks;
+        }
+    }
+
+    private static class Counter {
+        long edgeChecks;
+    }
+
+    public static Result kosaraju(Graph graph) {
 
         int n = graph.getVertices();
 
         boolean[] visited = new boolean[n];
+
         Deque<Integer> order = new ArrayDeque<>();
 
-        // 1. DFS on original graph
+        Counter counter = new Counter();
+
+        // First DFS
         for (int i = 0; i < n; i++) {
+
             if (!visited[i]) {
-                dfsOrder(graph, i, visited, order);
+
+                dfsOrder(
+                        graph,
+                        i,
+                        visited,
+                        order,
+                        counter);
             }
         }
 
-        // 2. Reverse graph
+        // Reverse graph
         Graph reversed = new Graph(n, true);
 
         for (int u = 0; u < n; u++) {
+
             for (Edge edge : graph.getNeighbors(u)) {
-                reversed.addEdge(edge.v, edge.u, edge.w);
+
+                counter.edgeChecks++;
+
+                reversed.addEdge(
+                        edge.v,
+                        edge.u,
+                        edge.w);
             }
         }
 
-        // 3. DFS on reversed graph
-        Arrays.fill(visited, false);
+        Arrays.fill(
+                visited,
+                false);
 
         List<List<Integer>> components = new ArrayList<>();
 
+        // Second DFS
         while (!order.isEmpty()) {
 
             int vertex = order.pop();
@@ -51,26 +86,39 @@ public class SCC {
                         reversed,
                         vertex,
                         visited,
-                        component);
+                        component,
+                        counter);
 
                 components.add(component);
             }
         }
 
-        return components;
+        return new Result(
+                components,
+                counter.edgeChecks);
     }
 
     private static void dfsOrder(
             Graph graph,
             int vertex,
             boolean[] visited,
-            Deque<Integer> order) {
+            Deque<Integer> order,
+            Counter counter) {
 
         visited[vertex] = true;
 
         for (Edge edge : graph.getNeighbors(vertex)) {
+
+            counter.edgeChecks++;
+
             if (!visited[edge.v]) {
-                dfsOrder(graph, edge.v, visited, order);
+
+                dfsOrder(
+                        graph,
+                        edge.v,
+                        visited,
+                        order,
+                        counter);
             }
         }
 
@@ -81,18 +129,25 @@ public class SCC {
             Graph graph,
             int vertex,
             boolean[] visited,
-            List<Integer> component) {
+            List<Integer> component,
+            Counter counter) {
 
         visited[vertex] = true;
+
         component.add(vertex);
 
         for (Edge edge : graph.getNeighbors(vertex)) {
+
+            counter.edgeChecks++;
+
             if (!visited[edge.v]) {
+
                 dfsComponent(
                         graph,
                         edge.v,
                         visited,
-                        component);
+                        component,
+                        counter);
             }
         }
     }

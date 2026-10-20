@@ -13,10 +13,15 @@ public class TopologicalSort {
     public static class Result {
         public final List<Integer> order;
         public final boolean hasCycle;
+        public final long edgeChecks;
 
-        public Result(List<Integer> order, boolean hasCycle) {
+        public Result(
+                List<Integer> order,
+                boolean hasCycle,
+                long edgeChecks) {
             this.order = order;
             this.hasCycle = hasCycle;
+            this.edgeChecks = edgeChecks;
         }
     }
 
@@ -26,9 +31,12 @@ public class TopologicalSort {
 
         int[] indegree = new int[n];
 
+        long edgeChecks = 0;
+
         for (int u = 0; u < n; u++) {
             for (Edge edge : graph.getNeighbors(u)) {
                 indegree[edge.v]++;
+                edgeChecks++;
             }
         }
 
@@ -50,6 +58,8 @@ public class TopologicalSort {
 
             for (Edge edge : graph.getNeighbors(u)) {
 
+                edgeChecks++;
+
                 indegree[edge.v]--;
 
                 if (indegree[edge.v] == 0) {
@@ -60,6 +70,9 @@ public class TopologicalSort {
 
         boolean hasCycle = order.size() != n;
 
-        return new Result(order, hasCycle);
+        return new Result(
+                order,
+                hasCycle,
+                edgeChecks);
     }
 }
