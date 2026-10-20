@@ -15,10 +15,17 @@ public class Prim {
         public final int totalWeight;
         public final boolean connected;
 
-        public Result(List<Edge> edges, int totalWeight, boolean connected) {
+        public final long edgeChecks;
+
+        public Result(
+                List<Edge> edges,
+                int totalWeight,
+                boolean connected,
+                long edgeChecks) {
             this.edges = edges;
             this.totalWeight = totalWeight;
             this.connected = connected;
+            this.edgeChecks = edgeChecks;
         }
     }
 
@@ -33,14 +40,18 @@ public class Prim {
         PriorityQueue<Edge> queue = new PriorityQueue<>(Comparator.comparingInt(e -> e.w));
 
         int totalWeight = 0;
+        long edgeChecks = 0;
 
         if (n == 0) {
-            return new Result(mst, 0, true);
+            return new Result(mst, 0, true, 0);
         }
 
         visited[0] = true;
 
-        queue.addAll(graph.getNeighbors(0));
+        for (Edge edge : graph.getNeighbors(0)) {
+            queue.add(edge);
+            edgeChecks++;
+        }
 
         while (!queue.isEmpty() && mst.size() < n - 1) {
 
@@ -56,6 +67,8 @@ public class Prim {
             totalWeight += edge.w;
 
             for (Edge next : graph.getNeighbors(edge.v)) {
+                edgeChecks++;
+
                 if (!visited[next.v]) {
                     queue.add(next);
                 }
@@ -64,6 +77,10 @@ public class Prim {
 
         boolean connected = mst.size() == n - 1;
 
-        return new Result(mst, totalWeight, connected);
+        return new Result(
+                mst,
+                totalWeight,
+                connected,
+                edgeChecks);
     }
 }
