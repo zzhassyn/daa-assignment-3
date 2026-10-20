@@ -5,6 +5,9 @@ public class UnionFind {
     private final int[] parent;
     private final int[] size;
 
+    private long findCount;
+    private long unionCount;
+
     public UnionFind(int n) {
         parent = new int[n];
         size = new int[n];
@@ -16,14 +19,21 @@ public class UnionFind {
     }
 
     public int find(int x) {
+        findCount++;
+        return findRoot(x);
+    }
+
+    private int findRoot(int x) {
         if (parent[x] != x) {
-            parent[x] = find(parent[x]);
+            parent[x] = findRoot(parent[x]);
         }
 
         return parent[x];
     }
 
     public boolean union(int a, int b) {
+        unionCount++;
+
         int rootA = find(a);
         int rootB = find(b);
 
@@ -41,5 +51,13 @@ public class UnionFind {
         size[rootA] += size[rootB];
 
         return true;
+    }
+
+    public long getFindCount() {
+        return findCount;
+    }
+
+    public long getUnionCount() {
+        return unionCount;
     }
 }
